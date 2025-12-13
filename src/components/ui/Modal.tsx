@@ -116,7 +116,7 @@ export const Modal = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop con blur */}
       <div
-        className="fixed inset-0 backdrop-blur-md bg-black bg-opacity-30 transition-opacity"
+        className="fixed inset-0 bg-gray-900/30 backdrop-blur-md transition-opacity"
         onClick={handleBackdropClick}
         aria-hidden="true"
       />

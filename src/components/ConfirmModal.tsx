@@ -57,7 +57,7 @@ export default function ConfirmModal({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Overlay con blur */}
       <div
-        className="fixed inset-0 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-gray-900/30 backdrop-blur-md transition-opacity"
         onClick={handleClose}
       ></div>
 

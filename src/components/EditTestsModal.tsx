@@ -59,7 +59,7 @@ export default function EditTestsModal({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
         <div 
-          className="fixed inset-0 backdrop-blur-md transition-opacity"
+          className="fixed inset-0 bg-gray-900/30 backdrop-blur-md transition-opacity"
           onClick={handleClose}
         />
         
