@@ -1,8 +1,8 @@
 /**
  * UI Components - Componentes reutilizables de interfaz de usuario
- * 
+ *
  * Este barrel export facilita la importación de componentes UI:
- * 
+ *
  * @example
  * ```tsx
  * import { Button, Modal, Input } from '@/components/ui';

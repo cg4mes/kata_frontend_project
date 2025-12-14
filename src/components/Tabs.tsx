@@ -14,7 +14,7 @@ export default function Tabs({ tabs, activeTab, onChange }: TabsProps) {
   return (
     <div>
       <nav className="flex" aria-label="Tabs">
-        {tabs.map((tab) => {
+        {tabs.map(tab => {
           const isActive = activeTab === tab.id;
           return (
             <button

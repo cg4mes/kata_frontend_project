@@ -1,4 +1,5 @@
-import { ReactNode, useEffect } from 'react';
+import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * Variantes de color para el header del modal
@@ -29,7 +30,7 @@ export interface ModalProps {
 
 /**
  * Componente Modal reutilizable
- * 
+ *
  * @example
  * ```tsx
  * <Modal
@@ -126,7 +127,7 @@ export const Modal = ({
         {/* Modal */}
         <div
           className={`relative w-full ${maxWidthStyles[maxWidth]} transform overflow-hidden rounded-lg bg-white shadow-xl transition-all`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           {/* Header */}
           <div className={`${headerVariants[variant]} px-6 py-4`}>
@@ -134,16 +135,10 @@ export const Modal = ({
           </div>
 
           {/* Body */}
-          <div className="px-6 py-4">
-            {children}
-          </div>
+          <div className="px-6 py-4">{children}</div>
 
           {/* Footer (opcional) */}
-          {footer && (
-            <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
-              {footer}
-            </div>
-          )}
+          {footer && <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">{footer}</div>}
         </div>
       </div>
     </div>

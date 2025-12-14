@@ -7,14 +7,12 @@ on:
     paths:
       - 'src/**'
       - 'package*.json'
-      - 'Dockerfile'
-      - 'nginx.conf'
       - '.github/workflows/deploy-qa.yml'
 
 env:
   AWS_REGION: us-east-1
   S3_BUCKET: kata-frontend-qa
-  CLOUDFRONT_DISTRIBUTION_ID: YOUR_QA_DISTRIBUTION_ID
+  CLOUDFRONT_DISTRIBUTION_ID: <QA_DISTRIBUTION_ID>
 
 jobs:
   deploy:
@@ -60,4 +58,4 @@ jobs:
         if: success()
         run: |
           echo "✅ Frontend deployed successfully to QA environment"
-          echo "URL: https://qa.yourapp.com"
+          echo "URL: https://qa.appKata.com"

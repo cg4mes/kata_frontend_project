@@ -14,7 +14,7 @@ interface AuthProviderProps {
 function getInitialAuthState(): { token: string | null; user: User | null } {
   const storedToken = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   const storedUser = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
-  
+
   return {
     token: storedToken,
     user: storedUser ? safeJsonParse<User>(storedUser, {} as User) : null,
@@ -30,11 +30,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (email: string, password: string): Promise<void> => {
     try {
       const response = await authApi.login({ email, password });
-      
+
       // Store token and user data
       localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
       localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(response.user));
-      
+
       setToken(response.access_token);
       setUser(response.user);
     } catch (error) {

@@ -38,7 +38,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSubmit }: Create
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     // Validación
     if (!formData.product.trim()) {
       setError('El nombre del producto es requerido');
@@ -108,7 +108,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSubmit }: Create
                 label="Nombre del Producto"
                 type="text"
                 value={formData.product}
-                onChange={(e) => setFormData({ ...formData, product: e.target.value })}
+                onChange={e => setFormData({ ...formData, product: e.target.value })}
                 isRequired
                 disabled={isSubmitting}
                 placeholder="Ej: Portal Web"
@@ -121,7 +121,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSubmit }: Create
                 label="Prefijo"
                 type="text"
                 value={formData.prefix}
-                onChange={(e) => setFormData({ ...formData, prefix: e.target.value.toUpperCase() })}
+                onChange={e => setFormData({ ...formData, prefix: e.target.value.toUpperCase() })}
                 isRequired
                 disabled={isSubmitting}
                 placeholder="Ej: PW"
@@ -134,7 +134,9 @@ export default function CreateProjectModal({ isOpen, onClose, onSubmit }: Create
                 label="Total de Tests Definidos (FE + BE)"
                 type="number"
                 value={formData.totalDefinedTests || ''}
-                onChange={(e) => setFormData({ ...formData, totalDefinedTests: parseInt(e.target.value) || 0 })}
+                onChange={e =>
+                  setFormData({ ...formData, totalDefinedTests: parseInt(e.target.value) || 0 })
+                }
                 isRequired
                 disabled={isSubmitting}
                 placeholder="Ej: 150"

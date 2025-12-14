@@ -3,60 +3,45 @@ version: 0.2
 env:
   variables:
     AWS_DEFAULT_REGION: "us-east-1"
-    AWS_ACCOUNT_ID: "YOUR_AWS_ACCOUNT_ID"
-    IMAGE_REPO_NAME: "kata-frontend"
+    S3_BUCKET: "kata-frontend-production"
+    CLOUDFRONT_DISTRIBUTION_ID: "CLOUDFRONT_DISTRIBUTION_ID"
     ENVIRONMENT: "production"
-    VITE_API_URL: "https://api.yourapp.com"
+    VITE_API_URL: "https://api.appKata.com"
     VITE_ENVIRONMENT: "production"
 
 phases:
   pre_build:
     commands:
       - echo "=== Pre-Build Phase - Production Environment ==="
-      - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=prod-${COMMIT_HASH:=latest}
-      - echo "Image will be tagged as $IMAGE_TAG"
+      - echo "Installing dependencies..."
+      - npm ci
+      - echo "Environment configuration:"
       - echo "API URL will be $VITE_API_URL"
+      - echo "S3 Bucket: $S3_BUCKET"
+      - echo "CloudFront Distribution: $CLOUDFRONT_DISTRIBUTION_ID"
       
   build:
     commands:
       - echo "=== Build Phase ==="
       - echo "Build started on `date`"
-      - echo "Building the Docker image with Production configuration..."
-      - |
-        docker build \
-          --build-arg VITE_API_URL=$VITE_API_URL \
-          --build-arg VITE_ENVIRONMENT=$VITE_ENVIRONMENT \
-          -t $REPOSITORY_URI:latest \
-          -t $REPOSITORY_URI:$IMAGE_TAG \
-          -t $REPOSITORY_URI:prod-latest .
-      - echo "Docker image built successfully"
+      - echo "Building the React application with Vite..."
+      - npm run build
+      - echo "Build completed successfully"
+      - echo "Build output:"
+      - ls -lah dist/
       
   post_build:
     commands:
       - echo "=== Post-Build Phase ==="
-      - echo "Build completed on `date`"
-      - echo "Pushing the Docker images..."
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:prod-latest
-      - echo "Docker images pushed successfully"
-      - echo "Writing image definitions file..."
-      - printf '[{"name":"kata-frontend","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-      - echo "Updating task definition with new image..."
-      - sed -i "s|\${image_url}|$REPOSITORY_URI:$IMAGE_TAG|g" task-definition.json
-      - cat task-definition.json
-      - echo "Deployment artifacts created successfully"
-
-artifacts:
-  files:
-    - imagedefinitions.json
-    - task-definition.json
+      - echo "Syncing files to S3 bucket..."
+      - aws s3 sync dist/ s3://$S3_BUCKET/ --delete --cache-control "public,max-age=31536000,immutable" --exclude "index.html"
+      - aws s3 cp dist/index.html s3://$S3_BUCKET/index.html --cache-control "public,max-age=0,must-revalidate"
+      - echo "Files uploaded to S3 successfully"
+      - echo "Invalidating CloudFront cache..."
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+      - echo "CloudFront cache invalidated successfully"
+      - echo "Deployment completed on `date`"
 
 cache:
   paths:
-    - '/root/.npm/**/*'
     - 'node_modules/**/*'

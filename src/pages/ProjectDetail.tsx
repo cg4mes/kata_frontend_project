@@ -1,6 +1,20 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 import { projectsApi, indicatorsApi } from '../services/api';
 import type { Project, Indicator } from '../types';
 import ConfirmModal from '../components/ConfirmModal';
@@ -19,14 +33,20 @@ export default function ProjectDetail() {
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; indicatorId: string; runDate: string } | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    indicatorId: string;
+    runDate: string;
+  } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteAllModal, setDeleteAllModal] = useState(false);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
-  
+
   // Leer el parámetro tab de la URL
   const tabParam = searchParams.get('tab') as 'regression' | 'performance' | 'security' | null;
-  const [activeTab, setActiveTab] = useState<'regression' | 'performance' | 'security'>(tabParam || 'regression');
+  const [activeTab, setActiveTab] = useState<'regression' | 'performance' | 'security'>(
+    tabParam || 'regression'
+  );
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -41,9 +61,9 @@ export default function ProjectDetail() {
       ]);
 
       setProject(projectData);
-      setIndicators(indicatorsData.sort((a, b) => 
-        new Date(a.runDate).getTime() - new Date(b.runDate).getTime()
-      ));
+      setIndicators(
+        indicatorsData.sort((a, b) => new Date(a.runDate).getTime() - new Date(b.runDate).getTime())
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar datos');
       console.error('Error loading data:', err);
@@ -141,13 +161,19 @@ export default function ProjectDetail() {
 
   // Preparar datos para los gráficos
   const successRateData = filteredIndicators.map(indicator => ({
-    date: new Date(indicator.runDate).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }),
+    date: new Date(indicator.runDate).toLocaleDateString('es-ES', {
+      month: 'short',
+      day: 'numeric',
+    }),
     'Tasa de Éxito': indicator.executionSuccessRate,
-    'Cobertura': indicator.automationCoverage,
+    Cobertura: indicator.automationCoverage,
   }));
 
   const testResultsData = filteredIndicators.slice(-5).map(indicator => ({
-    date: new Date(indicator.runDate).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }),
+    date: new Date(indicator.runDate).toLocaleDateString('es-ES', {
+      month: 'short',
+      day: 'numeric',
+    }),
     Pasados: indicator.passed,
     Fallidos: indicator.failed,
     Omitidos: indicator.skipped,
@@ -155,22 +181,27 @@ export default function ProjectDetail() {
 
   // Datos agregados para el pie chart (último run del pipeline activo)
   const latestIndicator = filteredIndicators[filteredIndicators.length - 1];
-  const pieData = latestIndicator ? [
-    { name: 'Pasados', value: latestIndicator.passed },
-    { name: 'Fallidos', value: latestIndicator.failed },
-    { name: 'Omitidos', value: latestIndicator.skipped },
-  ].filter(item => item.value > 0) : [];
+  const pieData = latestIndicator
+    ? [
+        { name: 'Pasados', value: latestIndicator.passed },
+        { name: 'Fallidos', value: latestIndicator.failed },
+        { name: 'Omitidos', value: latestIndicator.skipped },
+      ].filter(item => item.value !== undefined && item.value > 0)
+    : [];
 
   // Estadísticas del proyecto
   const regressionIndicators = indicators.filter(i => i.pipelineType === 'regression');
-  const avgSuccessRate = regressionIndicators.length > 0 
-    ? regressionIndicators.reduce((sum, i) => sum + (i.executionSuccessRate ?? 0), 0) / regressionIndicators.length 
-    : 0;
-  
+  const avgSuccessRate =
+    regressionIndicators.length > 0
+      ? regressionIndicators.reduce((sum, i) => sum + (i.executionSuccessRate ?? 0), 0) /
+        regressionIndicators.length
+      : 0;
+
   // Cobertura actual: última cobertura registrada
-  const currentCoverage = regressionIndicators.length > 0 
-    ? regressionIndicators[regressionIndicators.length - 1].automationCoverage ?? 0
-    : 0;
+  const currentCoverage =
+    regressionIndicators.length > 0
+      ? (regressionIndicators[regressionIndicators.length - 1].automationCoverage ?? 0)
+      : 0;
 
   const totalTestsRun = regressionIndicators.reduce((sum, i) => sum + (i.totalTests ?? 0), 0);
 
@@ -189,7 +220,12 @@ export default function ProjectDetail() {
                 className="text-blue-600 hover:text-blue-800 mb-2"
                 icon={
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                 }
               >
@@ -197,8 +233,8 @@ export default function ProjectDetail() {
               </Button>
               <h1 className="text-3xl font-bold text-gray-900">{project.product}</h1>
               <p className="mt-1 text-sm text-gray-600">
-                Prefijo: <span className="font-semibold">{project.prefix}</span> • 
-                Tests definidos: <span className="font-semibold">{project.totalDefinedTests}</span>
+                Prefijo: <span className="font-semibold">{project.prefix}</span> • Tests definidos:{' '}
+                <span className="font-semibold">{project.totalDefinedTests}</span>
               </p>
             </div>
           </div>
@@ -211,8 +247,18 @@ export default function ProjectDetail() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div className="ml-4">
@@ -225,13 +271,25 @@ export default function ProjectDetail() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-orange-500 rounded-md p-3">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <svg
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
                 </svg>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Cobertura Actual</p>
-                <p className="text-2xl font-semibold text-gray-900">{currentCoverage.toFixed(1)}%</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {currentCoverage.toFixed(1)}%
+                </p>
               </div>
             </div>
           </div>
@@ -239,8 +297,18 @@ export default function ProjectDetail() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
               </div>
               <div className="ml-4">
@@ -269,7 +337,12 @@ export default function ProjectDetail() {
                     <YAxis domain={[0, 100]} />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="Tasa de Éxito" stroke="#10b981" strokeWidth={2} />
+                    <Line
+                      type="monotone"
+                      dataKey="Tasa de Éxito"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                    />
                     <Line type="monotone" dataKey="Cobertura" stroke="#f59e0b" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -277,7 +350,9 @@ export default function ProjectDetail() {
 
               {/* Latest Test Results Distribution */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribución Último Run</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Distribución Último Run
+                </h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -285,7 +360,9 @@ export default function ProjectDetail() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, value, percent }) => `${name}: ${value} (${((percent || 0) * 100).toFixed(0)}%)`}
+                      label={({ name, value, percent }) =>
+                        `${name}: ${value} (${((percent || 0) * 100).toFixed(0)}%)`
+                      }
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -302,7 +379,9 @@ export default function ProjectDetail() {
 
             {/* Test Results Over Time */}
             <div className="bg-white rounded-lg shadow p-6 mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Resultados de Tests por Ejecución</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Resultados de Tests por Ejecución
+              </h3>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={testResultsData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -328,25 +407,49 @@ export default function ProjectDetail() {
                       onClick={handleDeleteAll}
                       className="inline-flex items-center px-4 py-2 text-sm font-semibold text-red-600 bg-white border-2 border-red-600 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all"
                     >
-                      <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
                       </svg>
                       Eliminar Todos
                     </button>
                   )}
                 </div>
               </div>
-              
+
               {/* Tabs */}
               <div className="px-6">
                 <Tabs
                   tabs={[
-                    { id: 'regression', label: 'Regression', count: indicators.filter(i => i.pipelineType === 'regression').length },
-                    { id: 'performance', label: 'Performance', count: indicators.filter(i => i.pipelineType === 'performance').length },
-                    { id: 'security', label: 'Security', count: indicators.filter(i => i.pipelineType === 'security').length },
+                    {
+                      id: 'regression',
+                      label: 'Regression',
+                      count: indicators.filter(i => i.pipelineType === 'regression').length,
+                    },
+                    {
+                      id: 'performance',
+                      label: 'Performance',
+                      count: indicators.filter(i => i.pipelineType === 'performance').length,
+                    },
+                    {
+                      id: 'security',
+                      label: 'Security',
+                      count: indicators.filter(i => i.pipelineType === 'security').length,
+                    },
                   ]}
                   activeTab={activeTab}
-                  onChange={(tabId) => setActiveTab(tabId as 'regression' | 'performance' | 'security')}
+                  onChange={tabId =>
+                    setActiveTab(tabId as 'regression' | 'performance' | 'security')
+                  }
                 />
               </div>
 
@@ -385,42 +488,48 @@ export default function ProjectDetail() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {indicators.filter(i => i.pipelineType === 'regression').slice().reverse().map((indicator) => (
-                        <tr key={indicator.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(indicator.runDate).toLocaleString('es-ES')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.totalTests}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
-                            {indicator.passed}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">
-                            {indicator.failed}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.skipped}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.executionSuccessRate?.toFixed(1)}%
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.automationCoverage?.toFixed(1)}%
-                          </td>
-                          {isAdmin && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button
-                                id={`btn-delete-indicator-${indicator.id}`}
-                                onClick={() => handleDeleteIndicator(indicator.id, indicator.runDate)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Eliminar
-                              </button>
+                      {indicators
+                        .filter(i => i.pipelineType === 'regression')
+                        .slice()
+                        .reverse()
+                        .map(indicator => (
+                          <tr key={indicator.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {new Date(indicator.runDate).toLocaleString('es-ES')}
                             </td>
-                          )}
-                        </tr>
-                      ))}
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.totalTests}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
+                              {indicator.passed}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">
+                              {indicator.failed}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.skipped}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.executionSuccessRate?.toFixed(1)}%
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.automationCoverage?.toFixed(1)}%
+                            </td>
+                            {isAdmin && (
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button
+                                  id={`btn-delete-indicator-${indicator.id}`}
+                                  onClick={() =>
+                                    handleDeleteIndicator(indicator.id, indicator.runDate)
+                                  }
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Eliminar
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 )}
@@ -462,45 +571,51 @@ export default function ProjectDetail() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {indicators.filter(i => i.pipelineType === 'performance').slice().reverse().map((indicator) => (
-                        <tr key={indicator.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(indicator.runDate).toLocaleString('es-ES')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.totalRequest}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
-                            {indicator.okRequest}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">
-                            {indicator.koRequest}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.timeMean?.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.timeMax?.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.timeMin?.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.errorRate?.toFixed(1)}%
-                          </td>
-                          {isAdmin && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button
-                                id={`btn-delete-indicator-perf-${indicator.id}`}
-                                onClick={() => handleDeleteIndicator(indicator.id, indicator.runDate)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Eliminar
-                              </button>
+                      {indicators
+                        .filter(i => i.pipelineType === 'performance')
+                        .slice()
+                        .reverse()
+                        .map(indicator => (
+                          <tr key={indicator.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {new Date(indicator.runDate).toLocaleString('es-ES')}
                             </td>
-                          )}
-                        </tr>
-                      ))}
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.totalRequest}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">
+                              {indicator.okRequest}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">
+                              {indicator.koRequest}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.timeMean?.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.timeMax?.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.timeMin?.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.errorRate?.toFixed(1)}%
+                            </td>
+                            {isAdmin && (
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button
+                                  id={`btn-delete-indicator-perf-${indicator.id}`}
+                                  onClick={() =>
+                                    handleDeleteIndicator(indicator.id, indicator.runDate)
+                                  }
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Eliminar
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 )}
@@ -536,39 +651,45 @@ export default function ProjectDetail() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {indicators.filter(i => i.pipelineType === 'security').slice().reverse().map((indicator) => (
-                        <tr key={indicator.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(indicator.runDate).toLocaleString('es-ES')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">
-                            {indicator.high}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-semibold">
-                            {indicator.medium}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-semibold">
-                            {indicator.low}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.informational}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {indicator.securityScore?.toFixed(1)}
-                          </td>
-                          {isAdmin && (
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button
-                                id={`btn-delete-indicator-sec-${indicator.id}`}
-                                onClick={() => handleDeleteIndicator(indicator.id, indicator.runDate)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Eliminar
-                              </button>
+                      {indicators
+                        .filter(i => i.pipelineType === 'security')
+                        .slice()
+                        .reverse()
+                        .map(indicator => (
+                          <tr key={indicator.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {new Date(indicator.runDate).toLocaleString('es-ES')}
                             </td>
-                          )}
-                        </tr>
-                      ))}
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">
+                              {indicator.high}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-semibold">
+                              {indicator.medium}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-600 font-semibold">
+                              {indicator.low}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.informational}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {indicator.securityScore?.toFixed(1)}
+                            </td>
+                            {isAdmin && (
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button
+                                  id={`btn-delete-indicator-sec-${indicator.id}`}
+                                  onClick={() =>
+                                    handleDeleteIndicator(indicator.id, indicator.runDate)
+                                  }
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Eliminar
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 )}

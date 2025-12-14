@@ -25,18 +25,17 @@ print_info() {
 
 # Parse command line arguments
 ENVIRONMENT=${1:-qa}
-BUILD_DOCKER=${2:-false}
 
 # Set API URL based on environment
 case $ENVIRONMENT in
     qa)
-        API_URL="https://api-qa.yourapp.com"
+        API_URL="https://api-qa.appKata.com"
         ;;
     staging)
-        API_URL="https://api-staging.yourapp.com"
+        API_URL="https://api-staging.appKata.com"
         ;;
     production)
-        API_URL="https://api.yourapp.com"
+        API_URL="https://api.appKata.com"
         ;;
     local)
         API_URL="http://localhost:3000"
@@ -51,7 +50,6 @@ esac
 print_step "KATA FRONTEND - LOCAL BUILD & TEST"
 print_info "Environment: $ENVIRONMENT"
 print_info "API URL: $API_URL"
-print_info "Build Docker: $BUILD_DOCKER"
 
 # Step 1: Install dependencies
 print_step "Step 1: Installing Dependencies"
@@ -69,28 +67,11 @@ npm run build
 
 print_info "Build artifacts created in ./dist"
 
-# Step 4: Docker build (optional)
-if [ "$BUILD_DOCKER" = "true" ]; then
-    print_step "Step 4: Building Docker Image"
-    print_info "Building Docker image..."
-    docker build \
-        --build-arg VITE_API_URL=$API_URL \
-        --build-arg VITE_ENVIRONMENT=$ENVIRONMENT \
-        -t kata-frontend:$ENVIRONMENT .
-    print_info "Docker image built successfully ✓"
-    
-    print_info "\nTo run the container:"
-    print_info "  docker run -p 8080:80 kata-frontend:$ENVIRONMENT"
-    print_info "  Then open http://localhost:8080"
-fi
+print_info "Ready for deployment to S3 + CloudFront"
 
 print_step "BUILD COMPLETE ✓"
 print_info "All checks passed successfully"
 
-if [ "$BUILD_DOCKER" != "true" ]; then
-    print_info "\nTo build Docker image, run:"
-    print_info "  ./ci-cd/local-build.sh $ENVIRONMENT true"
-fi
-
 print_info "\nTo test the build locally:"
 print_info "  npm run preview"
+print_info "  Then open http://localhost:4173

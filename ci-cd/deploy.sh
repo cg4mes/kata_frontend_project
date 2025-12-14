@@ -78,5 +78,5 @@ pushRelease
 print_info "=== Deployment Complete ==="
 print_info "Next steps:"
 print_info "  1. AWS CodePipeline will automatically detect the new tag"
-print_info "  2. CodeBuild will build and push the Docker image"
-print_info "  3. ECS will deploy to the target environment"
+print_info "  2. CodeBuild will build the React application"
+print_info "  3. Build artifacts will be synced to S3 and CloudFront cache invalidated"

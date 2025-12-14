@@ -68,7 +68,8 @@ export default function InfoModal({
 
   const iconPath = {
     info: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-    warning: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+    warning:
+      'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
     error: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z',
   };
 
@@ -99,11 +100,7 @@ export default function InfoModal({
                   stroke="currentColor"
                   strokeWidth={2}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d={iconPath[type]}
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" d={iconPath[type]} />
                 </svg>
               </div>
               <div className="flex-1">
@@ -119,9 +116,19 @@ export default function InfoModal({
               type="button"
               onClick={onClose}
               className={`px-5 py-2.5 text-sm font-bold text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentColors.ring} shadow-md transition-all`}
-              style={{ backgroundColor: currentColors.button, borderColor: currentColors.button, border: '2px solid' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = currentColors.buttonHover, e.currentTarget.style.borderColor = currentColors.buttonHover)}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = currentColors.button, e.currentTarget.style.borderColor = currentColors.button)}
+              style={{
+                backgroundColor: currentColors.button,
+                borderColor: currentColors.button,
+                border: '2px solid',
+              }}
+              onMouseEnter={e => (
+                (e.currentTarget.style.backgroundColor = currentColors.buttonHover),
+                (e.currentTarget.style.borderColor = currentColors.buttonHover)
+              )}
+              onMouseLeave={e => (
+                (e.currentTarget.style.backgroundColor = currentColors.button),
+                (e.currentTarget.style.borderColor = currentColors.button)
+              )}
             >
               {buttonText}
             </button>

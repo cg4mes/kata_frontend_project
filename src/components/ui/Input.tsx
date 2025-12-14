@@ -1,4 +1,5 @@
-import { InputHTMLAttributes, forwardRef, useId } from 'react';
+import { forwardRef, useId } from 'react';
+import type { InputHTMLAttributes } from 'react';
 
 /**
  * Props del componente Input
@@ -16,7 +17,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 /**
  * Componente Input reutilizable con soporte para labels, errores y validación
- * 
+ *
  * @example
  * ```tsx
  * <Input
@@ -25,7 +26,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
  *   isRequired
  *   error={errors.username}
  * />
- * 
+ *
  * <Input
  *   type="email"
  *   label="Correo electrónico"
@@ -52,7 +53,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || generatedId;
 
     // Estilos base del input
-    const baseStyles = 'w-full px-3 py-2 border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
+    const baseStyles =
+      'w-full px-3 py-2 border rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0';
 
     // Estilos condicionales según estado
     const stateStyles = error
@@ -68,10 +70,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="w-full">
         {/* Label */}
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-1">
             {label}
             {isRequired && <span className="text-red-500 ml-1">*</span>}
           </label>
@@ -85,32 +84,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           className={inputStyles}
           aria-invalid={!!error}
           aria-describedby={
-            error
-              ? `${inputId}-error`
-              : helperText
-              ? `${inputId}-helper`
-              : undefined
+            error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined
           }
           {...props}
         />
 
         {/* Error message */}
         {error && (
-          <p
-            id={`${inputId}-error`}
-            className="mt-1 text-sm text-red-600"
-            role="alert"
-          >
+          <p id={`${inputId}-error`} className="mt-1 text-sm text-red-600" role="alert">
             {error}
           </p>
         )}
 
         {/* Helper text */}
         {!error && helperText && (
-          <p
-            id={`${inputId}-helper`}
-            className="mt-1 text-sm text-gray-500"
-          >
+          <p id={`${inputId}-helper`} className="mt-1 text-sm text-gray-500">
             {helperText}
           </p>
         )}

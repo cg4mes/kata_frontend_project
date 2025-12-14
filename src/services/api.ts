@@ -1,5 +1,14 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import type { Project, Indicator, CreateProjectDto, ProjectWithMetrics, LoginRequest, LoginResponse, RegisterRequest, User } from '../types';
+import type {
+  Project,
+  Indicator,
+  CreateProjectDto,
+  ProjectWithMetrics,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  User,
+} from '../types';
 import { API_CONFIG, STORAGE_KEYS, ERROR_MESSAGES } from '../constants/app';
 
 const api = axios.create({
@@ -19,12 +28,12 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  error => Promise.reject(error)
 );
 
 // Manejo global de errores
 api.interceptors.response.use(
-  (response) => response,
+  response => response,
   (error: AxiosError) => {
     if (error.response) {
       switch (error.response.status) {
@@ -95,7 +104,9 @@ export const indicatorsApi = {
   },
 
   deleteAllByProject: async (projectId: string): Promise<{ message: string; count: number }> => {
-    const response = await api.delete<{ message: string; count: number }>(`/indicators/project/${projectId}/all`);
+    const response = await api.delete<{ message: string; count: number }>(
+      `/indicators/project/${projectId}/all`
+    );
     return response.data;
   },
 };

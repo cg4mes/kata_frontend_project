@@ -58,14 +58,13 @@ src/
 - **Axios** - Cliente HTTP basado en promesas
 - **Recharts** - Librería de gráficos componibles
 - **Tailwind CSS 3.x** - Framework CSS utility-first
-- **Nginx** - Servidor web de producción
+- **AWS S3 + CloudFront** - Hosting y CDN global
 
 ## 📋 Requisitos Previos
 
 - **Node.js** v18 o superior
 - **npm** o **yarn**
-- **Docker** (opcional, para contenerización)
-- **AWS CLI** (para despliegue en la nube)
+- **AWS CLI** v2 (para despliegue en la nube)
 
 ## 🚀 Inicio Rápido
 
@@ -125,19 +124,17 @@ npm run format          # Formatear código con Prettier (si está configurado)
 npx tsc --noEmit        # Verificar tipos de TypeScript
 ```
 
-### Usar Docker Localmente
+### Build Local de Producción
 
 ```bash
-# Construir imagen Docker con variables de entorno
-docker build --build-arg VITE_API_URL=http://localhost:3000 -t kata-frontend:local .
+# Compilar para producción con entorno específico
+npm run build
 
-# Ejecutar contenedor
-docker run -p 8080:80 kata-frontend:local
+# Previsualizar localmente
+npm run preview
 
-# Acceder en http://localhost:8080
-
-# O usar script de compilación local
-./ci-cd/local-build.sh qa true
+# O usar script de compilación automatizado
+./ci-cd/local-build.sh qa
 ```
 
 ### Hot Module Replacement (HMR)
@@ -214,69 +211,151 @@ npm run lint:fix
 
 ## 📦 Despliegue
 
-Este proyecto está configurado para despliegue en **AWS ECS/Fargate** con Nginx como servidor web.
+Este proyecto está configurado para despliegue en **AWS S3 + CloudFront** como aplicación web estática.
 
-### 📖 Documentación de Despliegue
+### 🏗️ Arquitectura de Despliegue
 
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Guía completa de despliegue con configuración paso a paso en AWS
-- **[AWS_SETUP.md](./AWS_SETUP.md)** - Referencia rápida y estimaciones de costos
+```
+┌─────────────┐      ┌──────────────┐      ┌─────────┐
+│   GitHub    │─────▶│  CodeBuild   │─────▶│   S3    │
+│  (Source)   │      │  (Build npm) │      │ Bucket  │
+└─────────────┘      └──────────────┘      └────┬────┘
+                                                  │
+                                                  ▼
+                                           ┌─────────────┐
+                                           │ CloudFront  │
+                                           │    (CDN)    │
+                                           └─────────────┘
+                                                  │
+                                                  ▼
+                                              Usuarios
+```
 
-### 🚀 Despliegue Rápido
+### 🚀 Configuración Inicial (Solo Una Vez)
+
+#### 1. Crear Buckets S3
+
+```bash
+# QA
+aws s3 mb s3://kata-frontend-qa --region us-east-1
+aws s3 website s3://kata-frontend-qa --index-document index.html --error-document index.html
+
+# Staging
+aws s3 mb s3://kata-frontend-staging --region us-east-1
+aws s3 website s3://kata-frontend-staging --index-document index.html --error-document index.html
+
+# Production
+aws s3 mb s3://kata-frontend-production --region us-east-1
+aws s3 website s3://kata-frontend-production --index-document index.html --error-document index.html
+```
+
+#### 2. Configurar Políticas de Bucket
+
+```bash
+# Aplicar política pública de lectura (ejemplo para QA)
+cat > bucket-policy.json << EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "PublicReadGetObject",
+    "Effect": "Allow",
+    "Principal": "*",
+    "Action": "s3:GetObject",
+    "Resource": "arn:aws:s3:::kata-frontend-qa/*"
+  }]
+}
+EOF
+
+aws s3api put-bucket-policy --bucket kata-frontend-qa --policy file://bucket-policy.json
+```
+
+#### 3. Crear Distribuciones CloudFront
+
+```bash
+# Usar AWS Console o CLI para crear distribuciones CloudFront
+# Apuntar origen a: kata-frontend-qa.s3-website-us-east-1.amazonaws.com
+
+# O usar el script automatizado
+./setup-s3-cloudfront.sh
+```
+
+#### 4. Actualizar Configuración
+
+Actualiza los **CloudFront Distribution IDs** en:
+- `buildspec.yml` → Variable `CLOUDFRONT_DISTRIBUTION_ID`
+- `pipeline/buildspecs/buildspec.qa.yml` → Variable `CLOUDFRONT_DISTRIBUTION_ID`
+- `pipeline/buildspecs/buildspec.staging.yml` → Variable `CLOUDFRONT_DISTRIBUTION_ID`
+- `.github/workflows/deploy-*.yml` → Variable de entorno correspondiente
+
+```bash
+# Obtener Distribution IDs
+aws cloudfront list-distributions --query 'DistributionList.Items[*].[Id,Comment]' --output table
+```
+
+### 🌍 Entornos
+
+| Ambiente   | S3 Bucket                    | CloudFront | Branch    |
+|------------|------------------------------|------------|-----------|
+| QA         | `kata-frontend-qa`           | Distribution QA | `develop` |
+| Staging    | `kata-frontend-staging`      | Distribution Staging | `staging` |
+| Production | `kata-frontend-production`   | Distribution Prod | `main`    |
+
+### 📋 Scripts de Despliegue
 
 ```bash
 # 1. Verificar configuración
 ./ci-cd/verify-deployment-config.sh
 
-# 2. Compilación y prueba local con Docker
-./ci-cd/local-build.sh qa true
+# 2. Compilación y prueba local
+./ci-cd/local-build.sh qa
 
 # 3. Desplegar (crea tag de git y activa CI/CD)
 ./ci-cd/deploy.sh
 ```
 
-### 🏗️ Configuración Inicial
+### 🔄 Proceso de Despliegue Automático
 
-1. **Configurar Infraestructura AWS** (configuración única)
-   ```bash
-   # Crear VPC, Cluster ECS, Repositorio ECR, ALB
-   # Ver DEPLOYMENT.md para instrucciones detalladas
-   ```
+#### Via CodeBuild (AWS CodePipeline)
 
-2. **Reemplazar Placeholders**
-   ```bash
-   # Reemplazar YOUR_AWS_ACCOUNT_ID en todos los archivos de configuración
-   export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-   find . -type f \( -name "*.yml" -o -name "*.json" \) -exec sed -i '' "s/YOUR_AWS_ACCOUNT_ID/$AWS_ACCOUNT_ID/g" {} +
-   
-   # Actualizar URLs de API en buildspecs
-   # Reemplaza yourapp.com con tu dominio real
-   ```
+1. Push a branch específico activa el pipeline
+2. CodeBuild ejecuta el buildspec correspondiente:
+   - `buildspec.yml` (producción)
+   - `pipeline/buildspecs/buildspec.qa.yml`
+   - `pipeline/buildspecs/buildspec.staging.yml`
+3. CodeBuild compila la aplicación con `npm run build`
+4. Los archivos se sincronizan a S3 con `aws s3 sync`
+5. Cache de CloudFront se invalida automáticamente
 
-3. **Construir y Subir Imagen Docker**
-   ```bash
-   # Compilar con URL de API específica del entorno
-   docker build --build-arg VITE_API_URL=https://api-qa.yourapp.com -t kata-frontend:qa .
-   
-   # Etiquetar y subir a ECR
-   docker tag kata-frontend:qa ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/kata-frontend:qa-latest
-   docker push ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/kata-frontend:qa-latest
-   ```
+#### Via GitHub Actions
 
-### 🌍 Entornos
-
-- **QA**: `pipeline/buildspecs/buildspec.qa.yml` + `pipeline/service/task-definition.qa.json`
-- **Staging**: `pipeline/buildspecs/buildspec.staging.yml` + `pipeline/service/task-definition.staging.json`
-- **Producción**: `buildspec.yml` + `task-definition.json`
+Workflows configurados:
+- `.github/workflows/deploy-production.yml` → main branch
+- `.github/workflows/deploy-qa.yml` → develop branch
+- `.github/workflows/deploy-staging.yml` → staging branch
 
 ### ⚠️ Notas Importantes
 
-**Variables de Entorno**: Las variables de entorno de Vite (`VITE_*`) se inyectan en **tiempo de compilación**, no en tiempo de ejecución. Cada entorno requiere una compilación Docker separada con el `VITE_API_URL` apropiado.
+**Variables de Entorno**: Las variables de entorno de Vite (`VITE_*`) se inyectan en **tiempo de compilación**. Configúralas en:
+- BuildSpec: Variables de entorno en cada buildspec
+- GitHub Actions: Secrets del repositorio
 
-**Configuración de Nginx**: El [nginx.conf](nginx.conf) incluye:
-- Cabeceras de seguridad (CSP, HSTS, X-Frame-Options)
-- Compresión Gzip
-- Estrategia de caché (1 año para assets, no-cache para index.html)
-- Endpoint de verificación de salud en `/health`
+**Estrategia de Caché**:
+- Assets (JS, CSS, imágenes): `max-age=31536000, immutable` (1 año)
+- `index.html`: `max-age=0, must-revalidate` (sin caché)
+
+**Invalidación de CloudFront**: Se ejecuta automáticamente después de cada despliegue para asegurar que los usuarios obtengan la última versión.
+
+### 💰 Estimación de Costos (Mensual)
+
+| Servicio      | Costo Estimado |
+|---------------|----------------|
+| S3 Storage    | ~$0.50        |
+| S3 Requests   | ~$0.10        |
+| CloudFront    | ~$5-10        |
+| CodeBuild     | ~$2-5         |
+| **Total**     | **~$8-16/mes** |
+
+*Basado en tráfico moderado. CloudFront Tier Gratuito: 1TB salida/mes el primer año.*
 
 ## 🔐 Variables de Entorno
 
@@ -306,11 +385,15 @@ VITE_ENVIRONMENT=local
 // Esto se reemplaza en tiempo de compilación con el valor real
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// ✅ Correcto: Compilaciones específicas por entorno
-docker build --build-arg VITE_API_URL=https://api-qa.yourapp.com -t app:qa .
-
-// ❌ Incorrecto: No se pueden cambiar vars de entorno después de compilar
-docker run -e VITE_API_URL=https://new-url.com app:qa  // ¡Esto no funcionará!
+// ✅ Correcto: Variables configuradas en buildspec antes de compilar
+# buildspec.yml
+env:
+  variables:
+    VITE_API_URL: "https://api.appKata.com"
+phases:
+  build:
+    commands:
+      - npm run build  # Las variables ya están inyectadas
 ```
 
 ## 🗂️ Estructura del Proyecto
@@ -354,12 +437,22 @@ kata_frontend_project/
 ├── public/                     # Archivos estáticos públicos
 │   └── vite.svg
 ├── pipeline/                   # Configuraciones de despliegue AWS
-│   ├── buildspecs/
-│   └── service/
+│   └── buildspecs/            # BuildSpecs para CodeBuild
+│       ├── buildspec.qa.yml
+│       └── buildspec.staging.yml
+├── .github/                    # GitHub Actions workflows
+│   └── workflows/
+│       ├── deploy-production.yml
+│       ├── deploy-qa.yml
+│       └── deploy-staging.yml
 ├── ci-cd/                      # Scripts CI/CD
-├── nginx.conf                  # Configuración de Nginx
-├── Dockerfile                  # Imagen Docker de producción
+│   ├── deploy.sh
+│   ├── local-build.sh
+│   ├── install-dependencies.sh
+│   └── verify-deployment-config.sh
 ├── .env.example               # Plantilla de entorno
+├── buildspec.yml              # BuildSpec de producción
+├── setup-s3-cloudfront.sh     # Script de configuración AWS
 ├── index.html                 # Plantilla HTML
 ├── vite.config.ts             # Configuración de Vite
 ├── tsconfig.json              # Configuración de TypeScript

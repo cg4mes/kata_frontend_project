@@ -7,14 +7,12 @@ on:
     paths:
       - 'src/**'
       - 'package*.json'
-      - 'Dockerfile'
-      - 'nginx.conf'
       - '.github/workflows/deploy-staging.yml'
 
 env:
   AWS_REGION: us-east-1
   S3_BUCKET: kata-frontend-staging
-  CLOUDFRONT_DISTRIBUTION_ID: YOUR_STAGING_DISTRIBUTION_ID
+  CLOUDFRONT_DISTRIBUTION_ID: <STAGING_DISTRIBUTION_ID>
 
 jobs:
   deploy:
@@ -60,4 +58,4 @@ jobs:
         if: success()
         run: |
           echo "✅ Frontend deployed successfully to Staging environment"
-          echo "URL: https://staging.yourapp.com"
+          echo "URL: https://staging.appKata.com"

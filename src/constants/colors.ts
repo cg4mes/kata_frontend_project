@@ -7,7 +7,12 @@ export const CHART_COLORS = {
   gray: '#6b7280',
 } as const;
 
-export const PIE_CHART_COLORS = [CHART_COLORS.success, CHART_COLORS.danger, CHART_COLORS.warning, CHART_COLORS.gray];
+export const PIE_CHART_COLORS = [
+  CHART_COLORS.success,
+  CHART_COLORS.danger,
+  CHART_COLORS.warning,
+  CHART_COLORS.gray,
+];
 
 export const STATS_CARD_COLORS = {
   projects: 'bg-blue-500',

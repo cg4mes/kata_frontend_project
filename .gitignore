@@ -122,21 +122,11 @@ out/
 # Keep deployment configuration templates
 !buildspec.yml
 !pipeline/
-!task-definition.json
 !ci-cd/
-!nginx.conf
-!Dockerfile*
-!.dockerignore
 
 # But ignore any local deployment artifacts
 .aws-sam/
 samconfig.toml
-
-# ==========================================
-# Docker (local only)
-# ==========================================
-docker-data/
-volumes/
 
 # ==========================================
 # Backup Files

@@ -4,7 +4,12 @@ import type { UserRole } from '../types';
 interface CreateUserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (userData: { username: string; email: string; password: string; role: UserRole }) => Promise<void>;
+  onSubmit: (userData: {
+    username: string;
+    email: string;
+    password: string;
+    role: UserRole;
+  }) => Promise<void>;
 }
 
 export default function CreateUserModal({ isOpen, onClose, onSubmit }: CreateUserModalProps) {
@@ -47,7 +52,9 @@ export default function CreateUserModal({ isOpen, onClose, onSubmit }: CreateUse
       setRole('viewer');
       onClose();
     } catch (err) {
-      const errorMessage = (err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Error al crear usuario';
+      const errorMessage =
+        (err as { response?: { data?: { message?: string } } }).response?.data?.message ||
+        'Error al crear usuario';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -101,7 +108,7 @@ export default function CreateUserModal({ isOpen, onClose, onSubmit }: CreateUse
                   id="username"
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={e => setUsername(e.target.value)}
                   required
                   minLength={3}
                   disabled={loading}
@@ -120,7 +127,7 @@ export default function CreateUserModal({ isOpen, onClose, onSubmit }: CreateUse
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   required
                   disabled={loading}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
@@ -137,7 +144,7 @@ export default function CreateUserModal({ isOpen, onClose, onSubmit }: CreateUse
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   required
                   minLength={6}
                   disabled={loading}
@@ -154,7 +161,7 @@ export default function CreateUserModal({ isOpen, onClose, onSubmit }: CreateUse
                 <select
                   id="role"
                   value={role}
-                  onChange={(e) => setRole(e.target.value as UserRole)}
+                  onChange={e => setRole(e.target.value as UserRole)}
                   disabled={loading}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                 >

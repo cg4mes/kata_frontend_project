@@ -32,20 +32,11 @@ export function useProjectsData(): UseProjectsDataReturn {
       return INITIAL_STATS;
     }
 
-    const totalTestRuns = projectsData.reduce(
-      (sum, p) => sum + p.metrics.testRunsCount,
-      0
-    );
+    const totalTestRuns = projectsData.reduce((sum, p) => sum + p.metrics.testRunsCount, 0);
     const avgSuccessRate =
-      projectsData.reduce(
-        (sum, p) => sum + p.metrics.averageSuccessRate,
-        0
-      ) / projectsData.length;
+      projectsData.reduce((sum, p) => sum + p.metrics.averageSuccessRate, 0) / projectsData.length;
     const avgCoverage =
-      projectsData.reduce(
-        (sum, p) => sum + p.metrics.currentCoverage,
-        0
-      ) / projectsData.length;
+      projectsData.reduce((sum, p) => sum + p.metrics.currentCoverage, 0) / projectsData.length;
 
     return {
       totalProjects: projectsData.length,

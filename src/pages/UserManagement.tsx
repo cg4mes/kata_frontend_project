@@ -39,7 +39,12 @@ export default function UserManagement() {
     }
   };
 
-  const handleCreateUser = async (userData: { username: string; email: string; password: string; role: UserRole }) => {
+  const handleCreateUser = async (userData: {
+    username: string;
+    email: string;
+    password: string;
+    role: UserRole;
+  }) => {
     await usersApi.create(userData);
     setSuccessMessage('Usuario creado exitosamente');
     setTimeout(() => setSuccessMessage(''), 3000);
@@ -60,7 +65,9 @@ export default function UserManagement() {
       await fetchUsers();
       setDeleteConfirm(null);
     } catch (err) {
-      const errorMessage = (err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Error al eliminar usuario';
+      const errorMessage =
+        (err as { response?: { data?: { message?: string } } }).response?.data?.message ||
+        'Error al eliminar usuario';
       alert(errorMessage);
     } finally {
       setDeletingUserId(null);
@@ -68,9 +75,7 @@ export default function UserManagement() {
   };
 
   const getRoleBadgeColor = (role: UserRole) => {
-    return role === 'admin'
-      ? 'bg-purple-100 text-purple-800'
-      : 'bg-blue-100 text-blue-800';
+    return role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800';
   };
 
   const getRoleLabel = (role: UserRole) => {
@@ -90,11 +95,7 @@ export default function UserManagement() {
             <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
             <p className="text-gray-600 mt-1">Administra los usuarios del sistema</p>
           </div>
-          <Button
-            id="btn-back-to-dashboard"
-            variant="secondary"
-            onClick={() => navigate('/')}
-          >
+          <Button id="btn-back-to-dashboard" variant="secondary" onClick={() => navigate('/')}>
             Volver al Dashboard
           </Button>
         </div>
@@ -115,11 +116,7 @@ export default function UserManagement() {
 
         {/* Create User Button */}
         <div className="mb-6">
-          <Button
-            id="btn-create-user"
-            variant="primary"
-            onClick={() => setIsCreateModalOpen(true)}
-          >
+          <Button id="btn-create-user" variant="primary" onClick={() => setIsCreateModalOpen(true)}>
             + Crear Usuario
           </Button>
         </div>
@@ -127,13 +124,9 @@ export default function UserManagement() {
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-gray-500">
-              Cargando usuarios...
-            </div>
+            <div className="p-8 text-center text-gray-500">Cargando usuarios...</div>
           ) : users.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No hay usuarios registrados
-            </div>
+            <div className="p-8 text-center text-gray-500">No hay usuarios registrados</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -157,7 +150,7 @@ export default function UserManagement() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((u) => (
+                  {users.map(u => (
                     <tr key={u.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -178,7 +171,9 @@ export default function UserManagement() {
                         <div className="text-sm text-gray-900">{u.email}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(u.role)}`}>
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(u.role)}`}
+                        >
                           {getRoleLabel(u.role)}
                         </span>
                       </td>
@@ -214,9 +209,7 @@ export default function UserManagement() {
         </div>
 
         {/* User Count */}
-        <div className="mt-4 text-sm text-gray-600">
-          Total de usuarios: {users.length}
-        </div>
+        <div className="mt-4 text-sm text-gray-600">Total de usuarios: {users.length}</div>
       </div>
 
       {/* Create User Modal */}
@@ -257,7 +250,8 @@ export default function UserManagement() {
           }
         >
           <p className="text-gray-600">
-            ¿Estás seguro de que deseas eliminar al usuario <strong>{deleteConfirm.username}</strong>? Esta acción no se puede deshacer.
+            ¿Estás seguro de que deseas eliminar al usuario{' '}
+            <strong>{deleteConfirm.username}</strong>? Esta acción no se puede deshacer.
           </p>
         </Modal>
       )}
