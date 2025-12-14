@@ -1,4 +1,22 @@
+# ==========================================
+# Dependencies
+# ==========================================
+node_modules/
+.pnp
+.pnp.js
+
+# ==========================================
+# Build Output
+# ==========================================
+dist/
+dist-ssr/
+build/
+.vite/
+*.tsbuildinfo
+
+# ==========================================
 # Logs
+# ==========================================
 logs
 *.log
 npm-debug.log*
@@ -7,21 +25,144 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ==========================================
+# Environment Variables (IMPORTANT!)
+# ==========================================
+.env
+.env.*
 
-# Editor directories and files
+# ONLY keep the template - all others excluded for security
+!.env.example
+
+# ==========================================
+# Testing
+# ==========================================
+coverage/
+.nyc_output/
+test-results/
+junit.xml
+__snapshots__/
+
+# ==========================================
+# OS Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ==========================================
+# IDEs and Editors
+# ==========================================
+# VSCode
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.code-workspace
+
+# IntelliJ / WebStorm
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Windows
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
 
-#Environment files
-.env
+# ==========================================
+# Temporary Files
+# ==========================================
+.temp
+.tmp
+*.tmp
+*.temp
+
+# ==========================================
+# Vite / React Specific
+# ==========================================
+# Vite cache
+.vite-inspect/
+
+# React / Build artifacts
+*.map
+
+# ==========================================
+# AWS / Deployment (KEEP TEMPLATES!)
+# ==========================================
+# Keep deployment configuration templates
+!buildspec.yml
+!pipeline/
+!task-definition.json
+!ci-cd/
+!nginx.conf
+!Dockerfile*
+!.dockerignore
+
+# But ignore any local deployment artifacts
+.aws-sam/
+samconfig.toml
+
+# ==========================================
+# Docker (local only)
+# ==========================================
+docker-data/
+volumes/
+
+# ==========================================
+# Backup Files
+# ==========================================
+*.bak
+*.backup
+*.old
+*~
+
+# ==========================================
+# Lock Files (KEEP package-lock.json!)
+# ==========================================
+# Keep package-lock.json for reproducible builds
+!package-lock.json
+
+# But ignore other lock files if not using them
+# yarn.lock
+# pnpm-lock.yaml
+
+# ==========================================
+# SonarQube
+# ==========================================
+.scannerwork/
+.sonar/
+
+# ==========================================
+# Storybook
+# ==========================================
+storybook-static/
