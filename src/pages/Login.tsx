@@ -115,16 +115,6 @@ export default function Login() {
               Iniciar Sesión
             </Button>
           </form>
-
-          {/* Info */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Por defecto, todos los usuarios son{' '}
-              <span className="font-semibold text-blue-600">visualizadores</span>.
-              <br />
-              Contacta a un administrador para obtener permisos de edición.
-            </p>
-          </div>
         </div>
       </div>
     </div>

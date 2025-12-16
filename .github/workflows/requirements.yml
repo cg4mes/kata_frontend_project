@@ -9,9 +9,9 @@ on:
 
 jobs:
   requirements-frontend:
-    uses: bancodebogota/bbog-can-pipeline/.github/workflows/requirements_angular_frontend.yml@v1
+    uses: bancodebogota/bbog-can-pipeline/.github/workflows/requirements_react_frontend.yml@v1
     with:
-      node-version: "18.x"
+      node-version: "20.x"
       project-name: ${{ github.event.repository.name }}
       project-key: ${{ github.event.repository.name }}
       language: "javascript"
