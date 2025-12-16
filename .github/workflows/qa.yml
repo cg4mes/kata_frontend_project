@@ -1,0 +1,29 @@
+name: Deploy QA
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    name: Deploy QA
+    uses: bancodebogota/bbog-can-pipeline/.github/workflows/deploy_angular_frontend.yml@v1
+    with:
+      project-name: "" # No llenar este campo
+      app-name: "kata-frontend"
+      environment: "qa"
+      aws-region: "us-east-1"
+      build-folder: "dist"
+      bucket: "kata-frontend-qa"
+      distribution-id: "" # Configurar con el CloudFront Distribution ID de QA
+      build-command: "npm run build"
+      node-version: "18.x"
+      version: $(node -p "require('./package.json').version")
+      sherpa-report: 'false'
+      new-structure-folder: true
+    secrets:
+      DIG_READER_GITHUB_ACCESS_TOKEN: ${{ secrets.DIG_READER_GITHUB_ACCESS_TOKEN }}
+      ARTIFACTORY_READER_USER: ${{ secrets.ARTIFACTORY_READER_USER }}
+      ARTIFACTORY_READER_API_KEY: ${{ secrets.ARTIFACTORY_READER_API_KEY }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_ROLE_DEPLOY_FRONTEND: ${{ secrets.AWS_ROLE_DEPLOY_FRONTEND }}

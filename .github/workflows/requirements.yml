@@ -1,0 +1,21 @@
+name: Requirements
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+      - staging
+      - feature/*
+
+jobs:
+  requirements-frontend:
+    uses: bancodebogota/bbog-can-pipeline/.github/workflows/requirements_angular_frontend.yml@v1
+    with:
+      node-version: "18.x"
+      project-name: ${{ github.event.repository.name }}
+      project-key: ${{ github.event.repository.name }}
+      language: "javascript"
+      bucket-name: ""
+      app-name: ${{ github.event.repository.name }}
+      sonar-project-properties-file: "sonar-project.properties"
+    secrets: inherit
